@@ -1,0 +1,15 @@
+:root.light {
+  --primary-color: white;
+  --secondary-color: #f2f2f2;
+  --contrast-color: #5F65FF;
+  --text-color: #333333;
+  --border-color: grey;
+}
+
+:root.dark {
+  --primary-color: #333333;
+  --secondary-color: #4c4c4c;
+  --contrast-color: #813897;
+  --text-color: #fff;
+  --border-color: #fff;
+}

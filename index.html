@@ -5,11 +5,170 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YourLibrary - HOME</title>
-  
+  <link rel="shortcut icon" href="./IMG/library_icon.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="./CSS/variables.css">
+  <link rel="stylesheet" href="./CSS/style.css">
+  <link rel="stylesheet" href="./CSS/mobile-layout.css">
+  <link rel="stylesheet" href="./CSS/desktop-layout.css">
+  <link rel="stylesheet" href="./CSS/dialog-forms.css">
 </head>
 
 <body>
+  <div class="main-layout">
+    <input type="checkbox" placeholder="#" id="side-bar-check">
+    <header id="main-header">
+      <label for="side-bar-check" class="slide-bar-icon-container"><i class="fa-solid fa-bars slide-bar-icon"></i></label>
+      <img src="./IMG/library_icon.png" alt="logo" class="logo">
+      <img src="./IMG/user-pfp.jpeg" alt="user-pfp" class="user">
+    </header>
   
+    <div class="side-bar">
+      <div class="web-logo">
+        <img src="./IMG/library_icon.png" alt="logo">
+        <h1>YourLibrary.com</h1>
+      </div>
+
+      <div class="sb-section">
+        <article>Menu</article>
+        <ul>
+          <li><i class="fa-solid fa-book-bookmark"></i> Library</li>
+          <li><i class="fa-solid fa-shield"></i> Security</li>
+          <li><i class="fa-solid fa-envelope"></i> Notifications</li>
+        </ul>
+      </div>
+  
+      <div class="sb-section">
+        <article>Appearance</article>
+        <ul>
+          <li class="theme-toggle"><i class="fa-solid fa-moon"></i> Theme</li>
+          <li><i class="fa-solid fa-circle-info"></i> Help</li>
+        </ul>
+      </div>
+  
+      <div class="sb-section">
+        <article>Action</article>
+        <ul>
+          <li><i class="fa-solid fa-book-bookmark"></i> Settings</li>
+          <li><i class="fa-solid fa-gear"></i> Log Out</li>
+          <li><i class="fa-solid fa-right-from-bracket"></i> Notifications</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="library-main-container">
+      <div class="user-greeting">
+        <div class="greeting">
+          <img src="./IMG/user-pfp.jpeg" alt="user" class="user-pfp">
+          <article class="greeting-text">Welcome <span class="user-name">Endric</span></article>
+        </div>
+
+        <div class="book-filter-container-1">
+          <input type="search" class="book-filter-bar" placeholder="Search for book...">
+          <button type="button" class="book-filter-button">SEARCH</button>
+        </div>
+
+        <div class="date-container">
+          <article class="time">
+            <span id="hour">00</span> : 
+            <span id="minutes">00</span> 
+            <span id="period">AM</span> 
+            
+          </article>
+
+          <article class="date">
+            <span id="day-name">Day</span> 
+            <span id="month">Month</span> 
+            <span id="day-num">1</span> 
+            <span id="year">2024</span>
+          </article>
+        </div>
+
+      </div>
+
+      <div class="books">
+        <button type="submit" class="add-book-btn" id="add-btn"><i class="fa-solid fa-book-bookmark"></i> Add</button>
+
+        <div class="books-container" id="b-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="dialog add-dialog">
+    <h3 class="form-title">BOOK INFO:</h3>
+    <button type="button" class="exit-btn" id="exit-add-dialog"><i class="fa-solid fa-xmark"></i></button>
+    <form method="dialog" class="add-book-form book-form">
+      <div class="input-container">
+        <label for="i-title">Title:</label>
+        <input type="text" id="add-title" required>
+      </div>
+
+      <div class="input-container">
+        <label for="i-title">Author:</label>
+        <input type="text" id="add-author" required>
+      </div>
+
+      <div class="input-container">
+        <label for="i-title">Release date:</label>
+        <input type="" id="add-release-date" required>
+      </div>
+
+      <div class="input-container">
+        <label for="i-title">Pages:</label>
+        <input type="number" id="add-pages" required>
+      </div>
+
+      <div class="input-container">
+        <label for="i-title">Status:</label>
+        <select title="status" name="status" id="add-status" required>
+          <option value="On Hold" selected>On Hold</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+
+      <button type="submit" class="form-btn" id="close-add-dialog">Add</button>
+    </form>
+  </dialog>
+
+  <dialog class="dialog edit-dialog">
+    <h3 class="form-title">BOOK INFO:</h3>
+    <button type="button" class="exit-btn" id="exit-edit-dialog"><i class="fa-solid fa-xmark"></i></button>
+    <form method="dialog" class="edit-book-form book-form">
+      <div class="input-container">
+        <label for="i-title">Title:</label>
+        <input type="text" id="edit-title" required>
+      </div>
+
+      <div class="input-container">
+        <label for="i-title">Author:</label>
+        <input type="text" id="edit-author" required>
+      </div>
+
+      <div class="input-container">
+        <label for="i-title">Release date:</label>
+        <input type="" id="edit-release-date" required>
+      </div>
+
+      <div class="input-container">
+        <label for="i-title">Pages:</label>
+        <input type="number" id="edit-pages" required>
+      </div>
+
+      <div class="input-container">
+        <label for="i-title">Status:</label>
+        <select title="status" name="status" id="edit-status"  required>
+          <option value="On Hold" selected>On Hold</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+
+      <button type="submit" class="form-btn" id="close-edit-dialog">Edit</button>
+    </form>
+  </dialog>
 </body>
 
+<script src="./JS/theme.js"></script>
+<script src="./JS/main.js"></script>
 </html>

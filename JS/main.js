@@ -1,106 +1,154 @@
-const addBtn = document.getElementById("add-btn");
+const books_container = document.getElementById("b-container");
+const add_button = document.getElementById("add-btn");
 const addDialog = document.querySelector(".add-dialog");
-const closeAddDialog = document.getElementById("close-add-dialog");
-const exitAddDialog = document.getElementById("exit-add-dialog");
+const submit_add_dialog = document.getElementById("close-add-dialog");
+const exit_add_dialog = document.getElementById("exit-add-dialog");
 const editDialog = document.querySelector(".edit-dialog");
-const closeEditDialog = document.getElementById("close-edit-dialog");
-const exitEditDialog = document.getElementById("exit-edit-dialog");
-const booksContainer = document.getElementById("b-container");
-let bookEditIndex;
-let booksCode = [1, 2, 3]
-let booksDB = [
-  {
-    "title": "To Kill a Mockingbird",
-    "author": "Harper Lee",
-    "release-date": 1960,
-    "pages": 336,
-    "status": "In Progress",
-    "code" : 1
-  },
-  {
-    "title": "1984",
-    "author": "George Orwell",
-    "release-date": 1949,
-    "pages": 328,
-    "status": "In Progress",
-    "code" : 2
-  },
-  {
-    "title": "The Great Gatsby",
-    "author": "F. Scott Fitzgerald",
-    "release-date": 1925,
-    "pages": 180,
-    "status": "Complete",
-    "code" : 3
-  }
-];
+const submit_edit_dialog = document.getElementById("close-edit-dialog");
+const exit_edit_dialog = document.getElementById("exit-edit-dialog");
+const search_bar = document.querySelector(".book-filter-bar");
+const book_filter = document.getElementById("book-filter");
+
+let books_data_base = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+  books_data_base = localStorage.getItem("books-db") ? JSON.parse(localStorage.getItem("books-db")) : [
+    new Book("To Kill a Mockingbird", "Harper Lee", 1960, 336, "In Progress"),
+    new Book("1984", "George Orwell", 1949, 328, "In Progress", 2),
+    new Book("The Great Gatsby", "F. Scott Fitzgerald", 1925, 180, "Completed")
+  ];
+
   displayBookCards();
 
-  addBtn.addEventListener("click", () => addDialog.showModal())
+  add_button.addEventListener("click", () => addDialog.showModal())
+  submit_add_dialog.addEventListener("click", () => handleAddDialogClose())
+  exit_add_dialog.addEventListener("click", () => addDialog.close())
 
-  closeAddDialog.addEventListener("click", () => {
-    if (checkFormValidity(".add-book-form")) {
-      addDialog.close();
-      addBook();
-    } else {
-      alert("Please fill all the requires fields.")
-    }
+  submit_edit_dialog.addEventListener("click", () => handleEditDialogClose())
+  exit_edit_dialog.addEventListener("click", () => editDialog.close())
+
+  book_filter.addEventListener("click", () => filterBook());
+  search_bar.addEventListener("keydown", (e) => {
+    if (e.key == "Enter") { filterBook() }
   })
-
-  exitAddDialog.addEventListener("click", () => addDialog.close())
-
-  closeEditDialog.addEventListener("click", () => {
-    if (checkFormValidity(".edit-book-form")) {
-      editDialog.close();
-      editBook();
-    } else {
-      alert("Please fill all the requires fields.")
-    }
-  })
-
-  exitEditDialog.addEventListener("click", () => editDialog.close())
 })
 
-function displayBookCards () {
-  booksContainer.innerHTML = "";
+function Book (title, author, release_date, pages, status) {
+  this.title = title;
+  this.author = author;
+  this.release_date = release_date;
+  this.pages = pages;
+  this.status = status;
+  this.code = generateUniqueCode();
+}
 
-  for (const book in booksDB) {
-    let statusStyles;
-    if (booksDB[book]["status"].toLowerCase() == "completed") {
-      statusStyles = "c";
-    } else if (booksDB[book]["status"].toLowerCase() == "in progress") {
-      statusStyles = "ip"
-    } else {
-      statusStyles = "oh"
-    }
+function generateUniqueCode() {
+  let exist = false;
+  while (!exist) {
+    const newCode = Math.floor(Math.random() * 999) + 1;
+    books_data_base.forEach((book) => {
+      if (book.code == newCode) { exist = true }
+    })
 
-    booksContainer.innerHTML += `
-      <div class="book-card ${statusStyles}">
-        <article class="b-title">${booksDB[book]["title"]}</article>
-        <article class="b-author">By ${booksDB[book]["author"]}</article>
-        <article>${booksDB[book]["release-date"]}</article>
-        <article class="b-pages">${booksDB[book]["pages"]} pag.</article>
-        <article class="b-status status-${statusStyles}">${booksDB[book]["status"]}</article>
-        <div class="b-actions">
-          <button type="button" title="edit" class="edit-btn" onClick="bookEditIndex = ${booksDB[book]["code"]}; fillEditForm(bookEditIndex);"><i class="fa-solid fa-pen-to-square"></i></button>
-          <button type="button" title="remove" class="remove-btn" onClick="removeBook(${booksDB[book]["code"]})"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </div>
-    `
+    if (!exist) { return newCode }
   }
 }
 
+function generateBookCard(book) {
+  const status_style = getBookStatusStyling(book.status);
+  const bookCard = `
+    <div class="book-card ${status_style}">
+      <article class="b-title">${book.title}</article>
+      <article class="b-author">By ${book.author}</article>
+      <article>${book.release_date}</article>
+      <article class="b-pages">${book.pages} pag.</article>
+      <article class="b-status status-${status_style}">${book.status}</article>
+      <div class="b-actions">
+        <button type="button" title="edit" class="edit-btn" data-code="${book.code}"><i class="fa-solid fa-pen-to-square"></i></button>
+        <button type="button" title="remove" class="remove-btn" data-code="${book.code}"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  `
+  return bookCard;
+}
+
+function getBookStatusStyling (status) {
+  let status_styling;
+  if (status.toLowerCase() == "completed") {
+     status_styling = "c";
+  } else if (status.toLowerCase() == "in progress") {
+    status_styling = "ip"
+  } else {
+    status_styling = "oh"
+  }
+  return status_styling;
+}
+
+function displayBookCards () {
+  localStorage.setItem("books-db", JSON.stringify(books_data_base));
+  books_container.innerHTML = "";
+
+  books_data_base.forEach(book => {
+    books_container.innerHTML += generateBookCard(book);
+  });
+
+  document.querySelectorAll(".edit-btn").forEach((button) => {
+    button.addEventListener("click", () => displayEditDialog(button.getAttribute("data-code")));
+  })
+
+  document.querySelectorAll(".remove-btn").forEach((button) => {
+    button.addEventListener("click", () => removeBook(button.getAttribute("data-code")));
+  })
+}
+
+function handleAddDialogClose() {
+  if (checkFormValidity(".add-book-form")) {
+    addDialog.close();
+    addBook();
+  } else {
+    alert("Please fill all the requires fields.")
+  }
+}
+
+function handleEditDialogClose() {
+  if (checkFormValidity(".edit-book-form")) {
+    editDialog.close();
+    editBook(submit_edit_dialog.getAttribute("data-code"));
+  } else {
+    alert("Please fill all the requires fields.")
+  }
+}
+
+function checkFormValidity(formClass) {
+  const form = document.querySelector(formClass);
+  return form.checkValidity();
+}
+
+function displayEditDialog(book_code) {
+  books_data_base.forEach(book => {
+    if (book.code == book_code) {
+      document.getElementById("edit-title").value = book.title;
+      document.getElementById("edit-author").value = book.author;
+      document.getElementById("edit-release-date").value = book.release_date;
+      document.getElementById("edit-pages").value = book.pages;
+      document.getElementById("edit-status").value = book.status;
+    }
+  });
+
+  submit_edit_dialog.setAttribute("data-code", book_code)
+  editDialog.showModal();
+}
+
 function addBook () {
-  newBook = {
-    "title": document.getElementById("add-title").value,
-    "author" : document.getElementById("add-author").value,
-    "release-date" : document.getElementById("add-release-date").value,
-    "pages" : document.getElementById("add-pages").value,
-    "status" : document.getElementById("add-status").value,
-    "code" : booksCode[booksCode.length - 1] + 1
-  };
+  const title = document.getElementById("add-title").value;
+  const author = document.getElementById("add-author").value;
+  const release_date = document.getElementById("add-release-date").value;
+  const pages = document.getElementById("add-pages").value;
+  const status = document.getElementById("add-status").value;
+
+  const newBook = new Book(title, author, release_date, pages, status);
+
+  books_data_base.push(newBook);
 
   document.getElementById("add-title").value = "";
   document.getElementById("add-author").value = "";
@@ -108,34 +156,18 @@ function addBook () {
   document.getElementById("add-pages").value = "";
   document.getElementById("add-status").value = "";
 
-  booksDB.push(newBook)
-  booksCode.push(newBook["code"])
   displayBookCards();
 }
 
-function fillEditForm(code) {
-  console.log("Filling")
-  for (const i in booksDB) {
-    if (booksDB[i]["code"] == code) {
-      document.getElementById("edit-title").value = booksDB[i]["title"];
-      document.getElementById("edit-author").value = booksDB[i]["author"];
-      document.getElementById("edit-release-date").value = booksDB[i]["release-date"];
-      document.getElementById("edit-pages").value = booksDB[i]["pages"];
-      document.getElementById("edit-status").value = booksDB[i]["status"];
-    } 
-  }
-
-  editDialog.showModal();
-}
-
-function editBook() {
-  for (const i in booksDB) {
-    if (booksDB[i]["code"] == bookEditIndex) {
-      booksDB[i]["title"] = document.getElementById("edit-title").value;
-      booksDB[i]["author"] = document.getElementById("edit-author").value;
-      booksDB[i]["release-date"] = document.getElementById("edit-release-date").value;
-      booksDB[i]["pages"] = document.getElementById("edit-pages").value;
-      booksDB[i]["status"] = document.getElementById("edit-status").value;
+function editBook(edit_code) {
+  books_data_base.forEach(book => {
+    if (book.code == edit_code) {
+      console.log("Editing...")
+      book.title = document.getElementById("edit-title").value;
+      book.author = document.getElementById("edit-author").value;
+      book.release_date = document.getElementById("edit-release-date").value;
+      book.pages = document.getElementById("edit-pages").value;
+      book.status = document.getElementById("edit-status").value;
 
       document.getElementById("edit-title").value = "";
       document.getElementById("edit-author").value = "";
@@ -144,27 +176,38 @@ function editBook() {
       document.getElementById("edit-status").value = "";
 
       displayBookCards();
-    } 
-  }
+    }
+  });
 }
 
-function removeBook(code) {
-  for (const i in booksDB) {
-    if (booksDB[i]["code"] == code) {
-      booksDB.splice(i, 1);
-    }
-  }
-
-  for (const i in booksCode) {
-    if (booksCode[i] == code) {
-      booksCode.splice(i, 1);
+function removeBook(book_code) {
+  for (const i in books_data_base) {
+    if (books_data_base[i].code == book_code) {
+      books_data_base.splice(i, 1);
     }
   }
 
   displayBookCards();
 }
 
-function checkFormValidity(formClass) {
-  const form = document.querySelector(formClass);
-  return form.checkValidity();
+function filterBook() {
+  books_data_base.forEach(book => {
+    const book_title = book.title.substring(0, search_bar.value.length);
+    if (book_title.toLowerCase() == search_bar.value.toLowerCase()) {
+      books_container.innerHTML = "";
+      books_container.innerHTML += generateBookCard(book);
+      
+      document.querySelectorAll(".edit-btn").forEach((button) => {
+        button.addEventListener("click", () => displayEditDialog(button.getAttribute("data-code")));
+      })
+
+      document.querySelectorAll(".remove-btn").forEach((button) => {
+        button.addEventListener("click", () => removeBook(button.getAttribute("data-code")));
+      })
+
+      search_bar.value = "";
+    } else {
+      books_container.innerHTML = `<article>Book(s) not found...</article>`
+    }
+  });
 }

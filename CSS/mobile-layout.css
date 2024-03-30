@@ -83,6 +83,7 @@
   background-color: var(--contrast-color);
   color: white;
   cursor: pointer;
+  transform: scale(1.1);
 }
 
 .sb-section > ul > li > i {
